@@ -16,14 +16,18 @@ if __name__ == "__main__":
         is_request_type_suitable = False
 
         # Checking if request type is suitable
-        if f"\"{REQUEST_TYPE} " in line:
-            is_request_type_suitable = True
+        request_type_check = re.search(r'\s\"(\w+)', line)
+        if request_type_check:
+            request_type = request_type_check.group(1)
+            if request_type == REQUEST_TYPE:
+                is_request_type_suitable = True
 
         # Checking if request is succeed
-        for code in range(REQUEST_STATUS_FROM, REQUEST_STATUS_TO, 1):
-            if f" {code} " in line:
+        request_status_str = re.search(r'\s\d{3}\s', line)
+        if request_status_str:
+            request_status_int = int(request_status_str.group())
+            if REQUEST_STATUS_FROM <= request_status_int < REQUEST_STATUS_TO:
                 is_request_success = True
-                break
 
         # Checking if request is in suitable time range
         full_time = re.findall(r'\d{2}/\w{3}/\d{4}:(\d{2}:\d{2}:\d{2})', line)
