@@ -1,15 +1,24 @@
 import re
 
+REQUEST_TYPE = "GET"
+REQUEST_STATUS_FROM: int = 200
+REQUEST_STATUS_TO: int = 400
+HOUR_START: int = 2
+MINUTE_START: int = 19
+SECOND_START: int = 30
+HOUR_END: int = 11
+MINUTE_END: int = 9
+SECOND_END: int = 29
+
 if __name__ == "__main__":
-    REQUEST_TYPE = "GET"
-    REQUEST_STATUS_FROM: int = 200
-    REQUEST_STATUS_TO: int = 400
+    try:
+        with open("access.log.txt", "r") as file:
+            list_of_lines = file.readlines()
+    except FileNotFoundError:
+        print("File was not found.")
+        exit()
 
     counter_of_lines: int = 0
-
-    with open("access.log.txt", "r") as file:
-        list_of_lines = file.readlines()
-
     for line in list_of_lines:
         is_request_success = False
         is_requested_time = False
@@ -35,31 +44,31 @@ if __name__ == "__main__":
         is_minute_suitable = False
         is_second_suitable = False
 
-        if 2 <= int(full_time[0][:2]) <= 11:
+        if HOUR_START <= int(full_time[0][:2]) <= HOUR_END:
             is_hour_suitable = True
 
-        if 2 < int(full_time[0][:2]) < 11:
+        if HOUR_START < int(full_time[0][:2]) < HOUR_END:
             is_minute_suitable = True
-        elif int(full_time[0][:2]) == 2:
-            if int(full_time[0][3:5]) >= 19:
+        elif int(full_time[0][:2]) == HOUR_START:
+            if int(full_time[0][3:5]) >= MINUTE_START:
                 is_minute_suitable = True
-        elif int(full_time[0][:2]) == 11:
-            if int(full_time[0][3:5]) <= 9:
+        elif int(full_time[0][:2]) == HOUR_END:
+            if int(full_time[0][3:5]) <= MINUTE_END:
                 is_minute_suitable = True
         else:
             is_minute_suitable = False
 
-        if 2 < int(full_time[0][:2]) < 11:
+        if HOUR_START < int(full_time[0][:2]) < HOUR_END:
             is_second_suitable = True
-        elif int(full_time[0][:2]) == 2 and int(full_time[0][3:5]) > 19:
+        elif int(full_time[0][:2]) == HOUR_START and int(full_time[0][3:5]) > MINUTE_START:
             is_second_suitable = True
-        elif int(full_time[0][:2]) == 2 and int(full_time[0][3:5]) == 19:
-            if int(full_time[0][2:]) >= 30:
+        elif int(full_time[0][:2]) == HOUR_START and int(full_time[0][3:5]) == MINUTE_START:
+            if int(full_time[0][2:]) >= SECOND_START:
                 is_second_suitable = True
-        elif int(full_time[0][:2]) == 11 and int(full_time[0][3:5]) < 9:
+        elif int(full_time[0][:2]) == HOUR_END and int(full_time[0][3:5]) < MINUTE_END:
             is_second_suitable = True
-        elif int(full_time[0][:2]) == 11 and int(full_time[0][3:5]) == 9:
-            if int(full_time[0][2:]) <= 29:
+        elif int(full_time[0][:2]) == HOUR_END and int(full_time[0][3:5]) == MINUTE_END:
+            if int(full_time[0][2:]) <= SECOND_END:
                 is_second_suitable = True
 
         if is_hour_suitable and is_minute_suitable and is_second_suitable:
@@ -69,5 +78,7 @@ if __name__ == "__main__":
         if is_request_type_suitable and is_request_success and is_requested_time:
             counter_of_lines += 1
 
-    file.close()
-    print(counter_of_lines)
+    print("Number of all " + REQUEST_TYPE + " requests with status code from " + str(REQUEST_STATUS_FROM) + " to " +
+          str(REQUEST_STATUS_TO) + " that were executed in the time range of " + str(HOUR_START) + ":" +
+          str(MINUTE_START) + ":" + str(SECOND_START) + " to " + str(HOUR_END) + ":" + str(MINUTE_END) + ":" +
+          str(SECOND_END) + ":\n" + str(counter_of_lines))
